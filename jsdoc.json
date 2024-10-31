@@ -1,0 +1,32 @@
+{
+  "source": {
+    "include": ["src"],
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "plugins": ["plugins/markdown"],
+  "opts": {
+    "destination": "./docs",
+    "recurse": true,
+    "readme": "./README.md",
+    "template": "node_modules/clean-jsdoc-theme"
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": true
+    },
+    "clean-jsdoc-theme": {
+      "title": "PLLAY Integration API Documentation",
+      "theme": "dark",
+      "menu": [
+        {
+          "title": "GitHub",
+          "link": "https://github.com/yourusername/pllay-integration",
+          "target": "_blank"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 50
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 50
+      name: "Sustained load"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      pllay-game-secret-key: "{{ $processEnvironment.GAME_SECRET_KEY }}"
+
+scenarios:
+  - name: "Score validation flow"
+    flow:
+      - get:
+          url: "/oauth/auth-url"
+          capture:
+            - json: "$.authUrl"
+              as: "authUrl"
+      - think: 1
+      - post:
+          url: "/scores"
+          json:
+            name: "Test Score"
+            description: "Load test score type"
+            identifier: "load_test_score"
+            sorting: 1
+          capture:
+            - json: "$.scoreType.id"
+              as: "scoreTypeId"
+      - think: 1
+      - post:
+          url: "/scores/{{ scoreTypeId }}/validate"
+          json:
+            score: 100
+
+  - name: "Tournament flow"
+    flow:
+      - post:
+          url: "/tournament/subscribe"
+          json:
+            tournamentId: "tournament123"
+      - think: 2
+      - get:
+          url: "/tournament/tournament123/status"
+      - think: 1
+      - post:
+          url: "/validate-score"
+          json:
+            tournamentId: "tournament123"
+            roundId: "round123"
+            score: 100
+            clientScore: 100

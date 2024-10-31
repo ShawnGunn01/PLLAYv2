@@ -1,0 +1,268 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PLLAY Integration API",
+    "version": "1.0.0",
+    "description": "API documentation for PLLAY game integration service",
+    "contact": {
+      "name": "PLLAY Support",
+      "email": "support@pllay.io",
+      "url": "https://docs.pllay.io"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.pllay.io",
+      "description": "Production server"
+    },
+    {
+      "url": "https://api.staging.pllay.io",
+      "description": "Staging server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "OAuth and authentication endpoints"
+    },
+    {
+      "name": "KYC",
+      "description": "Know Your Customer verification endpoints"
+    },
+    {
+      "name": "Payments",
+      "description": "Payment processing and wallet management"
+    },
+    {
+      "name": "Wagers",
+      "description": "Wager creation and management"
+    },
+    {
+      "name": "Tournaments",
+      "description": "Tournament operations"
+    },
+    {
+      "name": "Geolocation",
+      "description": "Location validation and geofencing"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "gameSecretKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "pllay-game-secret-key"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "KYCVerification": {
+        "type": "object",
+        "properties": {
+          "verificationId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "failed"]
+          },
+          "identity": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "PaymentIntent": {
+        "type": "object",
+        "required": ["amount", "currency"],
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["USD"]
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": ["card", "bank", "crypto"]
+          }
+        }
+      },
+      "Wager": {
+        "type": "object",
+        "required": ["gameId", "amount"],
+        "properties": {
+          "gameId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "gameData": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/oauth/auth-url": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get OAuth authorization URL",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "authUrl": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/kyc/verify": {
+      "post": {
+        "tags": ["KYC"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Start KYC verification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["publicToken"],
+                "properties": {
+                  "publicToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "verification": {
+                      "$ref": "#/components/schemas/KYCVerification"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/intent": {
+      "post": {
+        "tags": ["Payments"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create payment intent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentIntent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment intent created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "intent": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "clientSecret": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

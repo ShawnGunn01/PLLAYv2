@@ -1,0 +1,31 @@
+.pllay-button {
+  display: block;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  transition: background-color 0.3s ease;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pllay-button:hover {
+  background-color: #0056b3;
+}
+
+.pllay-button:active {
+  transform: translateY(1px);
+}
+
+.pllay-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pllay-button.hidden {
+  display: none;
+}
